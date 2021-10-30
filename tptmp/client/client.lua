@@ -165,6 +165,7 @@ end
 
 function client_i:handle_room_16_()
 	sim.clearSim()
+	self.ghosting_ = {}
 	self.room_name_ = self:read_str8_()
 	local item_count
 	self.self_id_, item_count = self:read_bytes_(2)
@@ -191,7 +192,10 @@ function client_i:handle_join_17_()
 	local nick = self:read_str8_()
 	self:add_member_(id, nick)
 	self:reformat_nicks_()
-	self.window_:backlog_push_join(self.id_to_member[id].formatted_nick)
+	if not self.ghosting_[nick] then
+		self.window_:backlog_push_join(self.id_to_member[id].formatted_nick)
+	end
+	self.ghosting_[nick] = nil
 	self.profile_:user_sync()
 end
 
@@ -206,8 +210,13 @@ end
 
 function client_i:handle_leave_18_()
 	local member, id = self:member_prefix_()
-	local nick = member.nick
-	self.window_:backlog_push_leave(self.id_to_member[id].formatted_nick)
+	local flags = self:read_bytes_(1)
+	local ghosting = bit.band(flags, 1) ~= 0
+	if ghosting then
+		self.ghosting_[member.nick] = true
+	else
+		self.window_:backlog_push_leave(self.id_to_member[id].formatted_nick)
+	end
 	self.id_to_member[id] = nil
 end
 

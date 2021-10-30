@@ -149,7 +149,7 @@ function room_i:leave(client)
 	self.clients_ = self.clients_ - 1
 	self.log_inf_("$ left", client:nick())
 	for other_client in self:clients() do
-		other_client:send_leave(id)
+		other_client:send_leave(id, client:ghosting())
 	end
 	self:cleanup_dead_ids_()
 	self:cleanup()

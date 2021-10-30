@@ -131,9 +131,9 @@ function client_i:send_join(id, nick)
 	self:write_flush_()
 end
 
-function client_i:send_leave(id)
+function client_i:send_leave(id, ghosting)
 	self:write_("\18")
-	self:write_bytes_(id)
+	self:write_bytes_(id, ghosting and 1 or 0)
 	self:write_flush_()
 end
 
@@ -364,6 +364,7 @@ function client_i:deduplicate_nick_(keep_existing)
 				other_client_name = other.name_,
 			})
 		else
+			other.ghosting_ = true
 			other:drop("logged in from another location", nil, {
 				reason = "ghosted",
 				other_client_name = self.name_,
@@ -823,6 +824,10 @@ function client_i:registered()
 	return self.registered_
 end
 
+function client_i:ghosting()
+	return self.ghosting_
+end
+
 function client_i:mark_registered()
 	self.registered_ = true
 end
@@ -862,6 +867,7 @@ local function new(params)
 		rx_ = buffer_list.new({ limit = config.recvq_limit }),
 		tx_ = buffer_list.new({ limit = config.sendq_limit }),
 		ungotten_ = 0,
+		ghosting_ = false,
 	}, client_m)
 end
 
