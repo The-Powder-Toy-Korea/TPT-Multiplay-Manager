@@ -254,7 +254,7 @@ local function run()
 					local tool = member.last_tool or member.tool_l
 					local tool_name = util.to_tool[tool] or decode_rulestring(tool) or "UNKNOWN"
 					local tool_class = util.xid_class[tool]
-					if elem[tool_name] and tool ~= 0 and tool_name ~= "UNKNOWN" then
+					if elem[tool_name] and util.to_tool[tool] then
 						local real_name = elem.property(elem[tool_name], "Name")
 						if real_name ~= "" then
 							tool_name = real_name
@@ -271,9 +271,9 @@ local function run()
 					local repl_tool_name
 					if member.bmode ~= 0 then
 						local repl_tool = member.tool_x
-						repl_tool_name = util.to_tool[repl_tool] or "UNKNOWN"
+						repl_tool_name = util.to_tool[repl_tool] or decode_rulestring(repl_tool) or "UNKNOWN"
 						local repl_tool_class = util.xid_class[repl_tool]
-						if elem[repl_tool_name] and repl_tool ~= 0 and repl_tool_name ~= "UNKNOWN" then
+						if elem[repl_tool_name] and util.to_tool[repl_tool] then
 							local real_name = elem.property(elem[repl_tool_name], "Name")
 							if real_name ~= "" then
 								repl_tool_name = real_name
